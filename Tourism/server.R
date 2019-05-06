@@ -106,7 +106,7 @@ shinyServer(function(input, output){
   
   output$world = renderGvis({
     world_graph = gvisLineChart(world,xvar = 'year',yvar = 's_arrivals',
-                                options = list(title='Tourists per Year',titleTextStyle="{color:'darkorange',fontSize:20}",pointSize=5,
+                                options = list(title='Tourism Over the Years',titleTextStyle="{color:'darkorange',fontSize:20}",pointSize=5,
                                                width=600,height=360,backgroundColor='azure',series="[{color:'blue'}]",legend='none',
                                                vAxes="[{title:'Visitors',titleTextStyle:{color:'darkorange',fontSize:16},textPosition:'out'}]",
                                                hAxes="[{title:'Year',format:'####',textPosition:'out',titleTextStyle:{color:'darkorange',fontSize:16}}]")) 
@@ -214,7 +214,7 @@ shinyServer(function(input, output){
   
   output$most_money2 = renderGvis({
     bar_money = gvisBarChart(head(tourism %>% filter(year==2017) %>% select(Country.Name,total_receipts) %>% arrange(desc(total_receipts)),15),
-                               options = list(title='Top Receipts from Countries in 2017',titleTextStyle="{color:'darkorange',fontSize:20}",pointSize=5,
+                               options = list(title='Most Receipts from Tourism in 2017',titleTextStyle="{color:'darkorange',fontSize:20}",pointSize=5,
                                               width=600,height=360,backgroundColor='azure',legend = 'none',
                                               vAxes="[{title:'Country',titleTextStyle:{color:'darkorange',fontSize:16},textPosition:'out'}]",
                                               hAxes="[{title:'$USD',format:'short',textPosition:'out',titleTextStyle:{color:'darkorange',fontSize:16}}]"))

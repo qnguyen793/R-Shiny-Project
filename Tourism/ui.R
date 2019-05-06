@@ -31,9 +31,9 @@ shinyUI(dashboardPage(
                 infoBoxOutput('randtourists')
               ),
               fluidRow(
-                box(HTML('This shiny app has a collection of data on tourism throughout the world. How many tourists visit a country in a certain year?
-How many people travel from a certain country in a year? Which countries have become hotbeds for international tourism? How much does the tourism industry impact an economy?
-                         Find the answer playing around with the app. Maybe it could help you book your next trip!'),
+                box(HTML("This shiny app explores a collection of data on tourism throughout the world since 1995. 
+                        From looking at different features of tourism we can find out which countries are trending towards more international visitations and which countries rely on tourism in their economy.
+                         In future analyses I'd like to see which tourist activites are attracting the most attention in popular countries. Enjoy looking through the app, maybe you'll find your next vacation spot!"),
                          title = 'Travel the World', width=12, status='success',solidHeader = TRUE)
                 ),
               fluidRow(
