@@ -26,9 +26,9 @@ shinyUI(dashboardPage(
     tabItems(
       tabItem(tabName = 'Home',
               fluidRow(
-                infoBoxOutput('hotCountry'),
-                infoBoxOutput('year'),
-                infoBoxOutput('tourists')
+                infoBoxOutput('randCountry'),
+                infoBoxOutput('randyear'),
+                infoBoxOutput('randtourists')
               ),
               fluidRow(
                 box(HTML('This shiny app has a collection of data on tourism throughout the world. How many tourists visit a country in a certain year?
@@ -43,6 +43,103 @@ How many people travel from a certain country in a year? Which countries have be
                   tabPanel('Tourism Video',tags$iframe(src = "https://www.youtube.com/embed/O3bx5miizBw",width = 800,height=450))))
 
               ),
+
+      tabItem(tabName = 'World',
+              fluidRow(
+                box(title = 'World Tourism',width=12,status = 'success',solidHeader = T,
+                  valueBox(comma((world %>% filter(year==2017))$Total_Tourists[1]),'Travelers in 2017',color = 'purple',icon = icon('users')),
+                  valueBox(comma((world %>% filter(year==1995))$Total_Tourists[1]),'Travelers in 1995',color='purple',icon=icon('users')),
+                  valueBox(paste0(round((((world %>% filter(year==2017))$Total_Tourists[1])/((world %>% filter(year==1995))$Total_Tourists[1])-1)*100,2),'%'),
+                           'Percent Increase Since 1995',color='purple',icon = icon('chart-line'))
+                )
+              ),
+              fluidRow(
+                box(width=12,status='success',
+                column(6,
+                  plotlyOutput('worldplotly')),
+                column(6,
+                  plotlyOutput('popularplotly'))
+              ))),
+      
+      tabItem(tabName ='by_country',
+              fluidRow(
+                box(title='Country Tourism',status = 'success',solidHeader = T, width=12,
+                    fluidRow(
+                      column(4,offset = 0.5,
+                            selectizeInput('selected2','Select Country to Display',country,selected=T))),
+                    fluidRow(
+                      valueBoxOutput('country_abb2'),
+                      valueBoxOutput('recent_arrivals'),
+                      valueBoxOutput('recent_departures')
+                    ))),
+                fluidRow(
+                  column(9,
+                         htmlOutput('arrivals')),
+                  column(3,
+                         box(title = 'Percent Change in Recent Year',status = 'danger',width=NULL,
+                          fluidRow(uiOutput('percent_change1.1')),
+                          fluidRow(uiOutput('percent_change1.2'))))
+                        ),
+              br(),
+              fluidRow(
+                column(6,
+                       htmlOutput('change')),
+                column(6,
+                       htmlOutput('change2'))
+              )
+              
+            ),
+                    
+      tabItem(tabName = 'Receipt',
+              fluidRow(
+                box(title='Money from Tourism',status='success',solidHeader = T,width = 12,
+                    fluidRow(
+                      column(width=4,offset=0.5,
+                             selectizeInput('receipts','Select Country to Display',country,selected=T))),
+                    fluidRow(
+                      valueBoxOutput('percent_change3.1'),
+                      valueBoxOutput('percent_change3.2'),
+                      valueBoxOutput('latest_receipt')
+                    ))),
+              fluidRow(
+                column(6,offset = 0.5,
+                       htmlOutput('receipts')),
+                column(6,
+                       htmlOutput('most_money2'))
+
+              )
+      ),
+      tabItem(tabName = 'Export_Ratio',
+              fluidRow(
+                box(title='Tourism Impact',status='success',solidHeader = T,width = 12,
+                    fluidRow(
+                      column(width=4,offset=0.5,
+                             selectizeInput('selected_year2','Select Year to Display',year,selected=T))))),
+
+              fluidRow(
+                column(6,offset = 0.5,
+                       htmlOutput('impact')),
+                column(6,
+                       htmlOutput('dollar_per'))
+              ),
+              br(),
+              fluidRow(
+                column(6,offset = 0.5,
+                       uiOutput('highest_ratio')),
+                column(6,
+                       uiOutput('most_expensive'))
+              ),
+              fluidRow(
+                box(title='Tourism to Export Ratio',status='success',solidHeader = T,width = 12,
+                    fluidRow(
+                      column(width=4,offset=0.5,
+                             selectizeInput('ratio_country','Select Country to Display',country,selected=T))
+                    ))
+              ),
+              fluidRow(
+                column(12,
+                       htmlOutput('country_ratio'))
+              )),
       tabItem(tabName = 'Country',
               tabBox(width=12,
                      tabPanel('Country',
@@ -78,98 +175,15 @@ How many people travel from a certain country in a year? Which countries have be
                               fluidRow(
                                 column(width=12,offset=0.5,
                                        DT::dataTableOutput('table_year'))))
-                     ),
+              ),
               fluidRow(
                 column(12,
-                box(HTML("*arrivals: Number of tourists visited that year <br/> *departures: Number of residence traveling from country that year <br/> 
-                                *total_receipt: Total amount visitors spent traveling to country ($USD) <br> *receipt_transport: Portion of total_receipt used on transportation (flights, trains, etc.) ($USD) <br/> 
-                                *receipt_travel: Portion of total_receipt spent in the country ($USD) <br/> *ratio_exports: Ratio of total_recipts (tourism industry) to a country's total exports (%) <br/> 
-                                *total_expenditures: Total amount residences spent traveling to a different country ($USD) <br/> *expenditures_transport: Portion of total_expenditures used on transportation (flights, trains, etc.) ($USD) <br/> 
-                                *expenditures_travel: Potion of total_expenditures spent in the traveling country ($USD)"),title = 'KEY',status='danger',solidHeader = TRUE,width=12)
-              ))),
-      tabItem(tabName = 'World',
-              fluidRow(
-                box(title = 'World Tourism',width=12,status = 'success',solidHeader = T,
-                  valueBox(comma((world %>% filter(year==2017))$s_arrivals[1]),'Travelers in 2017',color = 'purple',icon = icon('users')),
-                  valueBox(comma((world %>% filter(year==1995))$s_arrivals[1]),'Travelers in 1995',color='purple',icon=icon('users')),
-                  valueBox(paste0(round((((world %>% filter(year==2017))$s_arrivals[1])/((world %>% filter(year==1995))$s_arrivals[1])-1)*100,2),'%'),
-                           'Percent Increase Since 1995',color='purple',icon = icon('chart-line'))
-                )
-              ),
-              fluidRow(
-                column(6,
-                htmlOutput('world')),
-                column(6,
-                       htmlOutput('popular'))
-              )),
-      
-      tabItem(tabName ='by_country',
-              fluidRow(
-                box(title='Inbound Tourism',status = 'success',solidHeader = T, width=12,
-                    fluidRow(
-                      column(4,offset = 0.5,
-                            selectizeInput('selected2','Select Country to Display',country,selected=T))),
-                    fluidRow(
-                      valueBoxOutput('country_abb2'),
-                      valueBoxOutput('recent_arrivals'),
-                      valueBoxOutput('recent_departures')
-                    ))),
-                fluidRow(
-                  column(9,
-                         htmlOutput('arrivals')),
-                  column(3,
-                         box(title = 'Percent Change in Recent Year',status = 'danger',width=NULL,
-                          fluidRow(uiOutput('percent_change1.1')),
-                          fluidRow(uiOutput('percent_change1.2'))))
-
-                        ),
-              fluidRow(
-                column(6,
-                       htmlOutput('change')),
-                column(6,
-                       htmlOutput('change2'))
-              )
-              
-            ),
-                    
-      tabItem(tabName = 'Receipt',
-              fluidRow(
-                box(title='Tourism Profit',status='success',solidHeader = T,width = 12,
-                    fluidRow(
-                      column(width=4,offset=0.5,
-                             selectizeInput('receipts','Select Country to Display',country,selected=T))),
-                    fluidRow(
-                      valueBoxOutput('percent_change3.1'),
-                      valueBoxOutput('percent_change3.2'),
-                      valueBoxOutput('latest_receipt')
-                    ))),
-              fluidRow(
-                column(6,offset = 0.5,
-                       htmlOutput('receipts')),
-                column(6,
-                       htmlOutput('most_money2'))
-
-              )
-      ),
-      tabItem(tabName = 'Export_Ratio',
-              fluidRow(
-                box(title='Tourism Impact',status='success',solidHeader = T,width = 12,
-                    fluidRow(
-                      column(width=4,offset=0.5,
-                             selectizeInput('selected_year2','Select Country to Display',year,selected=T))))),
-
-              fluidRow(
-                column(6,offset = 0.5,
-                       htmlOutput('impact')),
-                column(6,
-                       htmlOutput('dollar_per'))
-              ),
-              fluidRow(
-                column(6,offset = 0.5,
-                       uiOutput('highest_ratio')),
-                column(6,
-                       uiOutput('most_expensive'))
-              ))
+                       box(HTML("*arrivals: Number of tourists visited that year <br/> *total_receipt: Total amount that visitors spent traveling to country ($USD) <br/> *total_exports: All transactions composed of reseidents of a country and the rest of the world ($USD) <br/> 
+                                *ratio_exports: Ratio of total_recipts (tourism industry) to a country's total exports (%) <br/> *dollar_per: Average receipt per tourist ($USD) <br> *receipt_transport: Portion of total_receipt used on transportation (flights, trains, etc.) ($USD) <br/> 
+                                *receipt_travel: Portion of total_receipt spent in the country ($USD) <br/> *departures: Number of residence traveling from country that year <br/> *total_expenditures: Total amount residences spent traveling to a different country ($USD) <br/> 
+                                *expenditures_transport: Portion of total_expenditures used on transportation (flights, trains, etc.) ($USD) <br/> *expenditures_travel: Potion of total_expenditures spent in the traveling country ($USD)"),
+                           title = 'KEY',status='danger',solidHeader = TRUE,width=12)
+                )))
               
         
     )

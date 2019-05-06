@@ -2,25 +2,28 @@
 
 shinyServer(function(input, output){
   
+  ####FRONT PAGE####
   output$mymap = renderGvis({
     geo = gvisGeoChart(front_map %>% mutate(Visitors=arrivals),locationvar = 'Country.Code',colorvar = 'Visitors',hovervar = c('Country.Name'),
                              options=list(title='Country Tourism in 2017',width = 900,height=650,colorAxis="{colors:['white','orangered']}",background='blue'))  
     })
   
-  output$hotCountry = renderInfoBox({
+  output$randCountry = renderInfoBox({
     set.seed(as.numeric(Sys.time()))
     infoBox('Country', sample(most_arrivals$Country.Name,replace = T), icon=icon('flag'),color='light-blue',fill=F)
   })
   
-  output$year = renderInfoBox({
+  output$randyear = renderInfoBox({
     infoBox('Year',most_arrivals$year,icon=icon('hourglass'),color = 'light-blue',fill = F)
   })
 
-  output$tourists = renderInfoBox({
+  output$randtourists = renderInfoBox({
     set.seed(as.numeric(Sys.time()))
     infoBox('Tourists',sample(comma(most_arrivals$arrivals),replace = T),icon=icon('users'),color = 'light-blue',fill = F)
   })
   
+  
+  ####DATA PAGE####
   output$table_country = DT::renderDataTable(
     tourism %>% filter(.,Country.Name == input$selected_country) %>% select(.,-1:-4) %>% arrange(.,desc(year)),
     options = list(scrollX=TRUE)
@@ -96,7 +99,7 @@ shinyServer(function(input, output){
             icon=icon('percentage'),color = 'lime',fill=T)
   })
   
-  
+  ####WORLD TAB####
   country_arrival = reactive({
     tourism %>% filter(.,Country.Name==input$selected2)
   })
@@ -110,6 +113,13 @@ shinyServer(function(input, output){
     
   })
   
+  output$worldplotly = renderPlotly({
+    world = ggplot(world,aes(x=year,y=Total_Tourists))+geom_line(color='blue')+geom_point(color='blue',size=1)+
+      labs(title = 'Tourists over Years',y='Tourists')+theme(plot.background = element_rect(fill='azure'),title = element_text(color='orange'),
+                                                             axis.title = element_text(color='orange'),line = element_line(colour='blue'))
+    worldp = ggplotly(world)
+  })
+  
   output$popular = renderGvis({
   bar_popular = gvisBarChart(head(tourism %>% filter(year==2017) %>% select(Country.Name,arrivals) %>% arrange(desc(arrivals)),15),
                              options = list(title='Popular Countries in 2017',titleTextStyle="{color:'darkorange',fontSize:20}",pointSize=5,
@@ -118,6 +128,15 @@ shinyServer(function(input, output){
                                             hAxes="[{title:'Visitors',format:'decimal',textPosition:'out',titleTextStyle:{color:'darkorange',fontSize:16}}]"))
 })
   
+  output$popularplotly = renderPlotly({
+    dat = head(tourism %>% filter(year==2017) %>% select(Country.Name,arrivals) %>% arrange(desc(arrivals)),15)
+    pop = ggplot(dat,aes(x=Country.Name,y=arrivals))+geom_bar(stat='identity', fill='blue')+coord_flip()+scale_x_discrete(limits=rev(dat$Country.Name))+
+      labs(title = 'Popular Countries in 2017',x='Country',y='Tourists')+theme(plot.background = element_rect(fill='azure'),title = element_text(color='orange'),
+                                                                         axis.title = element_text(color='orange'))
+    popularp = ggplotly(pop)
+  })
+  
+  ####BY COUNTRY TAB####
   output$arrivals = renderGvis({
     line = gvisLineChart((country_arrival() %>% filter(!is.na(arrivals))),
                          xvar = 'year',yvar = c('arrivals','departures'),
@@ -143,7 +162,6 @@ shinyServer(function(input, output){
                                              vAxes="[{title:'Country',titleTextStyle:{color:'darkorange',fontSize:16},textPosition:'out'}]",
                                              hAxes="[{title:'Percent Change',format:'##',textPosition:'out',titleTextStyle:{color:'darkorange',fontSize:16}}]"))
   })
-  
   
   #Selected Country
   output$country_abb2 = renderValueBox({
@@ -179,30 +197,7 @@ shinyServer(function(input, output){
     paste('Departures',max((country_arrival() %>% filter(!is.na(departures)))$year)),icon=icon('percent'),color='maroon',width = 12)
   })
   
-  # output$departures = renderGvis({
-  #   line = gvisLineChart((country_departure()),
-  #                        xvar = 'year',yvar = 'departures',
-  #                        options = list(title='Resident Travelers per Year',titleTextStyle="{color:'darkorange',fontSize:20}",pointSize=5,
-  #                                       width=800,height=480,backgroundColor='azure',
-  #                                       vAxes="[{title:'Travelers',titleTextStyle:{color:'darkorange',fontSize:16},textPosition:'out'}]",
-  #                                       hAxes="[{title:'Year',format:'####',textPosition:'out',titleTextStyle:{color:'darkorange',fontSize:16}}]") 
-  #   )
-  # })
-  
-  # # Percent change in most recent year
-  # output$percent_change2.1 = renderValueBox({
-  #   valueBox(paste0(round((((country_departure() %>% arrange(.,desc(year)))$departures[1])/
-  #                           ((country_departure() %>% arrange(.,desc(year)))$departures[2])-1)*100,2),'%'), 
-  #            paste('Percent Change in',max(country_departure()$year)),icon=icon('percent'),color='olive')
-  # })
-  # 
-  # # Percent change lifetime
-  # output$percent_change2.2 = renderValueBox({
-  #   valueBox(paste0(round((((country_departure() %>% arrange(.,desc(year)))$departures[1])/
-  #                           ((country_departure() %>% arrange(.,year))$departures[1])-1)*100,2),'%'), 
-  #            paste('Percent Change Since',min(country_departure()$year)),icon=icon('percent'),color='olive')
-  # })
-  
+  ####RECEIPT TAB####
   country_receipt = reactive({
     tourism %>% filter(.,Country.Name == input$receipts,!is.na(total_receipts))
   })
@@ -210,9 +205,9 @@ shinyServer(function(input, output){
   output$receipts = renderGvis({
     line_receipts = gvisLineChart(country_receipt(),
                                   xvar = 'year',yvar = c('receipt_travel','receipt_transport','total_receipts'),
-                                  options = list(title='Tourism Gross Profit per Year',titleTextStyle="{color:'darkorange',fontSize:20}",pointSize=5,
+                                  options = list(title='Receipts from Tourism',titleTextStyle="{color:'darkorange',fontSize:20}",pointSize=5,
                                                  width=600,height=360,backgroundColor='azure', series="[{color:'orange'},{color:'red'},{color:'blue'}]",
-                                                 vAxes="[{title:'Gross Profit ($USD)',format:'short',titleTextStyle:{color:'darkorange',fontSize:16},textPosition:'out'}]",
+                                                 vAxes="[{title:'$USD',format:'short',titleTextStyle:{color:'darkorange',fontSize:16},textPosition:'out'}]",
                                                  hAxes="[{title:'Year',format:'####',textPosition:'out',titleTextStyle:{color:'darkorange',fontSize:16}}]")
     )
   })
@@ -222,7 +217,7 @@ shinyServer(function(input, output){
                                options = list(title='Top Receipts from Countries in 2017',titleTextStyle="{color:'darkorange',fontSize:20}",pointSize=5,
                                               width=600,height=360,backgroundColor='azure',legend = 'none',
                                               vAxes="[{title:'Country',titleTextStyle:{color:'darkorange',fontSize:16},textPosition:'out'}]",
-                                              hAxes="[{title:'$USD',format:'##',textPosition:'out',titleTextStyle:{color:'darkorange',fontSize:16}}]"))
+                                              hAxes="[{title:'$USD',format:'short',textPosition:'out',titleTextStyle:{color:'darkorange',fontSize:16}}]"))
   })
   
   output$percent_change3.1 = renderValueBox({
@@ -245,12 +240,13 @@ shinyServer(function(input, output){
     
   })
   
+  ####TOURISM IMPACT####
   country_impact = reactive({
     tourism %>% filter(.,year == input$selected_year2,IncomeGroup != 'Low income')
   })
   
   output$impact = renderGvis({
-    line_impact = gvisBarChart(head(country_impact() %>% filter(!is.na(ratio_exports)) %>% select(Country.Name,ratio_exports) %>% arrange(desc(ratio_exports)),15),
+    bar_impact = gvisBarChart(head(country_impact() %>% filter(!is.na(ratio_exports)) %>% select(Country.Name,ratio_exports) %>% arrange(desc(ratio_exports)),15),
                                   options = list(title='Proportion of Tourism on Total Exports',titleTextStyle="{color:'darkorange',fontSize:20}",pointSize=5,
                                                  width=600,height=360,backgroundColor='azure',legend = 'none',
                                                  vAxes="[{title:'Country',titleTextStyle:{color:'darkorange',fontSize:16},textPosition:'out'}]",
@@ -277,12 +273,6 @@ shinyServer(function(input, output){
     
   })
   
-  output$latest_expenditure = renderValueBox({
-    valueBox((country_expenditure() %>% arrange(.,desc(year)))$total_expenditures[1],
-             paste('Expenditure in',max(country_expenditure()$year)),
-             icon=icon('money-bill-wave'),color='olive')
-    
-  })
   
   output$highest_ratio = renderUI({
     infoBox(paste('Highest Ratio in',country_impact()$year[1]),
@@ -295,6 +285,17 @@ shinyServer(function(input, output){
     infoBox(paste('Most Expensive in',country_impact()$year[1]),
             (country_impact() %>% arrange(.,desc(dollar_per)))$Country.Name[1],
              icon=icon('money-bill-wave'),color='navy',width=8)
+    
+  })
+  
+  output$country_ratio = renderGvis({
+    line_country_ratio = gvisLineChart(tourism %>% filter(Country.Name==input$ratio_country),
+                                  xvar = 'year',yvar = 'ratio_exports',
+                                  options = list(title='Ratio of Tourism Receipts to Exports',titleTextStyle="{color:'darkorange',fontSize:24}",pointSize=5,
+                                                 width=1150,height=600,backgroundColor='azure', series="[{color:'blue'}]",legend='none',
+                                                 vAxes="[{title:'Percent',format:'short',titleTextStyle:{color:'darkorange',fontSize:20},textPosition:'out'}]",
+                                                 hAxes="[{title:'Year',format:'####',textPosition:'out',titleTextStyle:{color:'darkorange',fontSize:20}}]")
+    )
     
   })
 })
