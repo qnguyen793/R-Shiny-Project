@@ -31,7 +31,7 @@ shinyUI(dashboardPage(
                 infoBoxOutput('randtourists')
               ),
               fluidRow(
-                box(HTML("This shiny app explores a collection of data on tourism throughout the world since 1995. 
+                box(HTML("This shiny app explores a collection of datasets on tourism throughout the world since 1995. 
                         From looking at different features of tourism we can find out which countries are trending towards more international visitations and which countries rely on tourism in their economy.
                          In future analyses I'd like to see which tourist activites are attracting the most attention in popular countries. Enjoy looking through the app, maybe you'll find your next vacation spot!"),
                          title = 'Travel the World', width=12, status='success',solidHeader = TRUE)
@@ -81,6 +81,13 @@ shinyUI(dashboardPage(
                           fluidRow(uiOutput('percent_change1.2'))))
                         ),
               br(),
+              fluidRow(
+                box(title='Trending Countries',status='success',solidHeader = T,width=12,
+                    column(5,offset = 0.5,
+                           selectizeInput('trend1','Select Year From',year1,selected=T)),
+                    column(5,
+                           selectizeInput('trend2','Select Year To',year,selected=T)))
+              ),
               fluidRow(
                 column(6,
                        htmlOutput('change')),

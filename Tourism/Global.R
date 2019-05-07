@@ -21,6 +21,7 @@ tourism = tourism %>% select(.,Country.Name,Country.Code,Region,IncomeGroup,year
 
 country = tourism$Country.Name #country names
 year = tourism %>% select(.,year) %>% arrange(.,desc(year)) #descending years
+year1 = tourism %>% select(.,year) %>% arrange(.,year) #descending years
 region = tourism %>% select(.,Region) %>% arrange(.,Region) #regions
 # income = tourism %>% select(.,IncomeGroup)
 
@@ -30,10 +31,10 @@ front_map = tourism %>% filter(year==2017) %>% mutate(Country.Code = iso3ToIso2(
 world = tourism %>% group_by(year) %>% filter(!is.na(arrivals)) %>% summarise(Total_Tourists=sum(arrivals)) #arrivals by year
 
 
-m = tourism %>% group_by(Country.Name) %>% filter(year %in% c(2012,2017),IncomeGroup != 'Low income',na.omit(arrivals))
-n = (m %>% filter(year==2012,!is.na(arrivals)))
-p = (m %>% filter(year==2017,!is.na(arrivals)))
-s = inner_join(n,p,by = "Country.Name") %>% mutate(change=arrivals.y-arrivals.x) %>% 
-  mutate(percent = change/arrivals.x*100)
-p_change = s %>% select(Country.Name,percent) #percent change from 2012-2017
+# m = tourism %>% group_by(Country.Name) %>% filter(year %in% c(2012,2017),IncomeGroup != 'Low income',na.omit(arrivals))
+# n = (m %>% filter(year==2012,!is.na(arrivals)))
+# p = (m %>% filter(year==2017,!is.na(arrivals)))
+# s = inner_join(n,p,by = "Country.Name") %>% mutate(change=arrivals.y-arrivals.x) %>% 
+#   mutate(percent = change/arrivals.x*100)
+# p_change = s %>% select(Country.Name,percent) #percent change from 2012-2017
 

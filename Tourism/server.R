@@ -147,17 +147,30 @@ shinyServer(function(input, output){
                          )
   })
   
+  # output$second_selection = renderUI({
+  #   selectInput('trend2','Select Year To',year[year>input$trend1],selected=T)
+  # })
+  
+  p_change = reactive({
+
+    inner_join((tourism %>% group_by(Country.Name) %>% filter(year %in% c(input$trend1,input$trend2),IncomeGroup != 'Low income',na.omit(arrivals)) %>%
+                  filter(year==input$trend1,!is.na(arrivals))),(tourism %>% group_by(Country.Name) %>% filter(year %in% c(input$trend1,input$trend2),IncomeGroup != 'Low income',na.omit(arrivals)) %>% 
+                                                                  filter(year==input$trend2,!is.na(arrivals))),by = "Country.Name") %>% mutate(change=arrivals.y-arrivals.x) %>% 
+      mutate(percent = change/arrivals.x*100) %>% select(Country.Name,percent)
+    
+  })
+  
   output$change = renderGvis({
-    bar_change = gvisBarChart(head(p_change %>% arrange(desc(percent)),15),
-                               options = list(title='Largest Increase from 2012-2017',titleTextStyle="{color:'darkorange',fontSize:20}",pointSize=5,
+    bar_change = gvisBarChart(head(p_change() %>% arrange(desc(percent)),15),
+                               options = list(title=paste0('Largest Increase from ',input$trend1,'-',input$trend2),titleTextStyle="{color:'darkorange',fontSize:20}",pointSize=5,
                                               width=600,height=360,backgroundColor='azure',legend = 'none',
                                               vAxes="[{title:'Country',titleTextStyle:{color:'darkorange',fontSize:16},textPosition:'out'}]",
                                               hAxes="[{title:'Percent Change',format:'##',textPosition:'out',titleTextStyle:{color:'darkorange',fontSize:16}}]"))
   })
   
   output$change2 = renderGvis({
-    bar_change = gvisBarChart(head(p_change %>% arrange(percent),15),
-                              options = list(title='Largest Decrease from 2012-2017',titleTextStyle="{color:'darkorange',fontSize:20}",pointSize=5,
+    bar_change = gvisBarChart(head(p_change() %>% arrange(percent),15),
+                              options = list(title=paste0('Largest Decrease from ',input$trend1,'-',input$trend2),titleTextStyle="{color:'darkorange',fontSize:20}",pointSize=5,
                                              width=600,height=360,backgroundColor='azure',legend = 'none',
                                              vAxes="[{title:'Country',titleTextStyle:{color:'darkorange',fontSize:16},textPosition:'out'}]",
                                              hAxes="[{title:'Percent Change',format:'##',textPosition:'out',titleTextStyle:{color:'darkorange',fontSize:16}}]"))
