@@ -11,7 +11,7 @@ library(ggplot2)
 library(MazamaSpatialUtils)
 library(plotly)
 
-tourism = read.csv('Combined_tourism_Data.csv',stringsAsFactors = F)
+tourism = read.csv('Combined_Tourism_Data.csv',stringsAsFactors = F)
 tourism$X=NULL
 tourism$ratio_exports = sapply(tourism$ratio_exports,function(x){round(x,2)})
 tourism = tourism %>% mutate(dollar_per = ceiling(total_receipts/arrivals),total_exports = ceiling(total_receipts/(ratio_exports/100)))

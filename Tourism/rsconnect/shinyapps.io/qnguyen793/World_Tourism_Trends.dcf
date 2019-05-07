@@ -1,0 +1,12 @@
+name: World_Tourism_Trends
+title: World_Tourism_Trends
+username:
+account: qnguyen793
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 914002
+bundleId: 2065597
+url: https://qnguyen793.shinyapps.io/World_Tourism_Trends/
+when: 1557200154.64592
+asMultiple: FALSE
+asStatic: FALSE
