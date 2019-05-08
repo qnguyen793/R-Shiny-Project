@@ -153,8 +153,8 @@ shinyServer(function(input, output){
   
   p_change = reactive({
 
-    inner_join((tourism %>% group_by(Country.Name) %>% filter(year %in% c(input$trend1,input$trend2),IncomeGroup != 'Low income',na.omit(arrivals)) %>%
-                  filter(year==input$trend1,!is.na(arrivals))),(tourism %>% group_by(Country.Name) %>% filter(year %in% c(input$trend1,input$trend2),IncomeGroup != 'Low income',na.omit(arrivals)) %>% 
+    inner_join((tourism %>% group_by(Country.Name) %>% filter(year %in% c(input$trend1,input$trend2), na.omit(arrivals)) %>%
+                  filter(year==input$trend1,!is.na(arrivals))),(tourism %>% group_by(Country.Name) %>% filter(year %in% c(input$trend1,input$trend2), na.omit(arrivals)) %>% 
                                                                   filter(year==input$trend2,!is.na(arrivals))),by = "Country.Name") %>% mutate(change=arrivals.y-arrivals.x) %>% 
       mutate(percent = change/arrivals.x*100) %>% select(Country.Name,percent)
     
@@ -255,7 +255,7 @@ shinyServer(function(input, output){
   
   ####TOURISM IMPACT####
   country_impact = reactive({
-    tourism %>% filter(.,year == input$selected_year2,IncomeGroup != 'Low income')
+    tourism %>% filter(.,year == input$selected_year2)
   })
   
   output$impact = renderGvis({
