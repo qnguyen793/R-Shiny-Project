@@ -170,7 +170,7 @@ shinyServer(function(input, output){
   
   output$change2 = renderGvis({
     bar_change = gvisBarChart(head(p_change() %>% arrange(percent),15),
-                              options = list(title=paste0('Largest Decrease from ',input$trend1,'-',input$trend2),titleTextStyle="{color:'darkorange',fontSize:20}",pointSize=5,
+                              options = list(title=paste0('Smallest Increase from ',input$trend1,'-',input$trend2),titleTextStyle="{color:'darkorange',fontSize:20}",pointSize=5,
                                              width=600,height=360,backgroundColor='azure',legend = 'none',
                                              vAxes="[{title:'Country',titleTextStyle:{color:'darkorange',fontSize:16},textPosition:'out'}]",
                                              hAxes="[{title:'Percent Change',format:'##',textPosition:'out',titleTextStyle:{color:'darkorange',fontSize:16}}]"))
